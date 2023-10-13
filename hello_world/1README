@@ -1,0 +1,8 @@
+#!/bin/bash : Il s'agit d'une ligne de shebang qui spécifie l'interpréteur à utiliser pour le script, dans ce cas, il s'agit de Bash. Cela indique au système d'utiliser le shell Bash pour exécuter le script.
+
+gcc -c $CFILE : Il s'agit de la commande réelle exécutée par le script. Voici ce qu'elle fait :
+
+gcc : Il s'agit de la GNU Compiler Collection, un compilateur populaire pour les langages C, C++ et d'autres langages de programmation.
+-c : Cette option indique à GCC de compiler uniquement le fichier source, sans effectuer la phase de liaison. Elle produit un fichier objet (avec l'extension .o) en sortie.
+$CFILE : Il semble s'agir d'une variable qui contient le nom du fichier source C à compiler. Le script suppose que cette variable a été définie ailleurs dans le script ou dans l'environnement. Le script utilisera la valeur de cette variable comme fichier source d'entrée à compiler.
+Ainsi, ce script compile essentiellement un fichier source C (celui spécifié par la valeur de la variable $CFILE) en utilisant le compilateur GCC. Le résultat obtenu sera un fichier objet.
