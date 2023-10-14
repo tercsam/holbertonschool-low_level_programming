@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 /**
- * main - this program print the size of varios type on the computer
+ * main - Entry point
  *
- * Return : 0 (success)
+ * Return: Always 0 (success)
  */
 int main(void)
 {
