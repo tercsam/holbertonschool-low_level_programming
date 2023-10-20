@@ -6,7 +6,7 @@
  * Return 0 (Success)
  */
 
-int main(void)
+void print_alpahbet_x10(void)
 
 {
 	char letter;
@@ -18,6 +18,6 @@ int main(void)
 			putchar(letter);
 		putchar('\n');
 	}
-		return (0);
+	
 
 	}	
