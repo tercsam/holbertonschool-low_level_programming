@@ -14,9 +14,11 @@ int main(void)
 
 	while (count++ <= 9)
 	{
-		for (letter = 'a'; letter <= 'z', letter++)
-			putchar(letter)
+		for (letter = 'a'; letter <= 'z'; letter++)
+			putchar(letter);
 	}
-		putchar('\n')
+		putchar('\n');
+
+		return (0);
 
 	}	
