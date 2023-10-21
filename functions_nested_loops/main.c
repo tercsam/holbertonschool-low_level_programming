@@ -10,8 +10,8 @@ void test_islower(int n)
 	int r;
 
 	r = _islower(n);
-	putchar(r + '0');
-	putchar('\n');
+	_putchar(r + '0');
+	_putchar('\n');
 }
 
 /**
