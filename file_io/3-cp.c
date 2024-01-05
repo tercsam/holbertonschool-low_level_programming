@@ -1,76 +1,99 @@
-#include "main.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define BUFFER_SIZE 1024
 
 /**
- * errors - handle errors
- * @fd_s: source file
- * @fd_d: destination file
- * @argv: array of arguments
- * Return: void
+ * closeFile - Close file descriptor and exit on failure.
+ * @fd: File descriptor to close.
+ * @filename: Name of the file associated with the file descriptor.
  */
-
-void errors(int fd_s, int fd_d, char *argv[])
+void closeFile(int fd, const char *filename)
 {
-	if (fd_s == -1)
+	if (close(fd) == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-		exit(98);
-	}
-
-	if (fd_d == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-		close(fd_s);
-		exit(99);
+		dprintf(STDERR_FILENO, "Error: Can't close fd for %s\n", filename);
+		exit(100);
 	}
 }
 
 /**
- * main - program that copies the content of one file to another
- * @argc: number of arguments
- * @argv: array of arguments
- * Return: 0 (Always)
+ * copyFile - Copy content from source file to destination file.
+ * @src: File descriptor of the source file.
+ * @dest: File descriptor of the destination file.
+ * @av: Command-line arguments.
  */
 
-int main(int argc, char *argv[])
+void copyFile(int src, int dest, char **av)
 {
-	const char *f_from = argv[1];
-	const char *f_to = argv[2];
-	int fd_s, fd_d;
-	char buf[1024];
-	ssize_t nrd, nwr;
+	char buffer[BUFFER_SIZE];
+	ssize_t bytesRead, bytesWritten;
 
-	if (argc != 3)
+	while ((bytesRead = read(src, buffer, BUFFER_SIZE)) > 0)
 	{
-		dprintf(STDERR_FILENO, "%s\n", "Usage: cp file_from file_to");
-		exit(97);
-	}
-
-	fd_s = open(f_from, O_RDONLY);
-	fd_d = open(f_to, O_WRONLY | O_CREAT | O_TRUNC, 0664);
-	errors(fd_s, fd_d, argv);
-
-	while ((nrd = read(fd_s, buf, sizeof(buf))) > 0)
-	{
-		nwr = write(fd_d, buf, nrd);
-		if (nwr == -1)
+		bytesWritten = write(dest, buffer, bytesRead);
+		if (bytesWritten == -1)
 		{
-			dprintf(STDERR_FILENO, "Error: Can't write to file %s\n", argv[2]);
-			close(fd_s);
-			close(fd_d);
+			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", av[2]);
 			exit(99);
 		}
 	}
-	if (nrd == -1)
+
+	if (bytesRead == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-		close(fd_s);
-		close(fd_d);
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", av[1]);
 		exit(98);
 	}
-	if (close(fd_s) == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_s), exit(100);
-	if (close(fd_d) == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_d), exit(100);
+}
+/**
+ * main - Entry point of the program
+ * @argc: Number of command-line arguments
+ * @argv: Array of command-line argument strings
+ *
+ * Description:
+ *   - Validates the number of command-line arguments.
+ *   - Opens the source file in read-only mode.
+ *   - Handles errors if unable to open the source file.
+ *   - Opens or creates the destination file in write-only
+ *   - mode, truncating if it exists.
+ *   - Handles errors if unable to open or create the destination file.
+ *   - Copies the content from the source file to the destination file.
+ *   - Closes the source and destination files.
+ *
+ * Return: Always 0 (indicating successful execution).
+ */
+int main(int argc, char **argv)
+{
+	int src;
+	int dest;
+
+	if (argc != 3)
+	{
+		dprintf(STDERR_FILENO, "Usage: %s file_from file_to\n", argv[0]);
+		exit(97);
+	}
+
+	src = open(argv[1], O_RDONLY, 0664);
+	if (src == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		exit(98);
+	}
+
+	dest = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
+	if (dest == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+		closeFile(src, argv[1]);
+		exit(99);
+	}
+
+	copyFile(src, dest, argv);
+
+	closeFile(src, argv[1]);
+	closeFile(dest, argv[2]);
+
 	return (0);
 }
